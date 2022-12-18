@@ -6,7 +6,7 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.module.js",
   "unpkg": "./dist/index.umd.js",
-  "types": "./src/index.ts",
+  "types": "./dist/index.d.ts",
   "exports": {
     "bun": "./src/index.ts",
     "deno": "./src/index.ts",
