@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import { expect } from "expect";
 
-import { createTrie, matchTrie } from "./router";
+import { createTrie, matchTrie } from "../src";
 
 describe("router", () => {
   const routesTrie = createTrie([

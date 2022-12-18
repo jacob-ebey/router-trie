@@ -62,11 +62,8 @@ function matchRecursive<Route extends RouteConfig>(
           break;
         case DYNAMIC_SYMBOL:
           segmentIndex++;
-        case ROUTE_SYMBOL:
         case ROOT_SYMBOL:
-          if (root.route) {
-            matches.push(getMatchesFromNode(root)!);
-          }
+        case ROUTE_SYMBOL:
           for (let child of root.children) {
             matchRecursive(child, segments, segmentIndex, matches);
           }
@@ -274,7 +271,7 @@ export interface Node<Item> {
   route: Omit<Item, "children"> | null;
 }
 
-export interface BaseRouteConfig {
+interface BaseRouteConfig {
   id: string;
   path?: string;
 }

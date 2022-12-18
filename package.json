@@ -1,14 +1,25 @@
 {
   "name": "router-trie",
   "type": "module",
+  "source": "src/index.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.module.js",
+  "unpkg": "./dist/index.umd.js",
+  "exports": {
+    "require": "./dist/index.cjs",
+    "default": "./dist/index.modern.js"
+  },
   "scripts": {
+    "build": "microbundle",
     "start": "tsx playground.ts",
-    "test": "node --loader tsx --test *.test.ts"
+    "test": "node --loader tsx --test tests/*.test.ts"
   },
   "devDependencies": {
     "@types/deep-equal": "^1.0.1",
     "@types/node": "^18.11.17",
     "expect": "^29.3.1",
-    "tsx": "^3.12.1"
+    "microbundle": "^0.15.1",
+    "tsx": "^3.12.1",
+    "typescript": "^4.9.4"
   }
 }

@@ -1,5 +1,5 @@
-import { createTrie, matchTrie } from "./router";
-import { nodeToMermaidMarkdown } from "./mermaid";
+import { createTrie, matchTrie } from "./src";
+import { nodeToMermaidMarkdown } from "./src/mermaid";
 
 const routesTrie = createTrie([
   {
