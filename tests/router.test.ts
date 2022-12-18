@@ -56,6 +56,30 @@ describe("router", () => {
           ],
         },
         {
+          id: "nested-nested",
+          path: "nested-nested",
+          children: [
+            {
+              id: "nested-nested-index",
+              index: true,
+            },
+            {
+              id: "nested-nested-sub",
+              path: "sub",
+            },
+            {
+              id: "nested-nested-dynamic",
+              path: ":id",
+              children: [
+                {
+                  id: "nested-nested-dual-dynamic",
+                  path: ":id2",
+                },
+              ],
+            },
+          ],
+        },
+        {
           id: "catch-all",
           path: "*",
         },
@@ -135,6 +159,46 @@ describe("router", () => {
     expect(matches![0].id).toBe("root");
     expect(matches![1].id).toBe("nested");
     expect(matches![2].id).toBe("nested-dual-dynamic");
+  });
+
+  it("should match catch-all at root", () => {
+    const matches = matchTrie(routesTrie, "/catch-all");
+    expect(matches!.length).toBe(2);
+    expect(matches![0].id).toBe("root");
+    expect(matches![1].id).toBe("catch-all");
+  });
+
+  it("should match nested nested index", () => {
+    const matches = matchTrie(routesTrie, "/nested-nested");
+    expect(matches!.length).toBe(3);
+    expect(matches![0].id).toBe("root");
+    expect(matches![1].id).toBe("nested-nested");
+    expect(matches![2].id).toBe("nested-nested-index");
+  });
+
+  it("should match nested nested path with single static segment", () => {
+    const matches = matchTrie(routesTrie, "/nested-nested/sub");
+    expect(matches!.length).toBe(3);
+    expect(matches![0].id).toBe("root");
+    expect(matches![1].id).toBe("nested-nested");
+    expect(matches![2].id).toBe("nested-nested-sub");
+  });
+
+  it("should match nested nested path with single dynamic segment", () => {
+    const matches = matchTrie(routesTrie, "/nested-nested/dynamic");
+    expect(matches!.length).toBe(3);
+    expect(matches![0].id).toBe("root");
+    expect(matches![1].id).toBe("nested-nested");
+    expect(matches![2].id).toBe("nested-nested-dynamic");
+  });
+
+  it("should match nested nested path with dual dynamic segments", () => {
+    const matches = matchTrie(routesTrie, "/nested-nested/dynamic/dynamic");
+    expect(matches!.length).toBe(4);
+    expect(matches![0].id).toBe("root");
+    expect(matches![1].id).toBe("nested-nested");
+    expect(matches![2].id).toBe("nested-nested-dynamic");
+    expect(matches![3].id).toBe("nested-nested-dual-dynamic");
   });
 
   it("should match catch-all at root", () => {

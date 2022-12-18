@@ -50,6 +50,30 @@
         ]
       },
       {
+        "id": "nested-nested",
+        "path": "nested-nested",
+        "children": [
+          {
+            "id": "nested-nested-index",
+            "index": true
+          },
+          {
+            "id": "nested-nested-sub",
+            "path": "sub"
+          },
+          {
+            "id": "nested-nested-dynamic",
+            "path": ":id",
+            "children": [
+              {
+                "id": "nested-nested-dual-dynamic",
+                "path": ":id2"
+              }
+            ]
+          }
+        ]
+      },
+      {
         "id": "catch-all",
         "path": "*"
       }

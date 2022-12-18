@@ -31,7 +31,6 @@ function matchRecursive<Route extends RouteConfig>(
 ): Omit<Route, "children">[][] {
   if (!root) return matches;
 
-  console.log("HERE")
   if (onVisit) onVisit(root);
 
   let segmentsLength = segments.length;
