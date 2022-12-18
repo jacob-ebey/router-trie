@@ -2,6 +2,8 @@ import cytoscape from "cytoscape";
 // @ts-expect-error
 import dagre from "cytoscape-dagre";
 
+import routes from "../routes.json";
+
 import {
   createTrie,
   matchTrie,
@@ -70,69 +72,11 @@ function toId(node: Node<any>) {
   }
 }
 
-const routesTrie = createTrie([
-  {
-    id: "root",
-    children: [
-      {
-        id: "home",
-        index: true,
-      },
-      {
-        id: "path-index",
-        path: "path-index",
-        index: true,
-      },
-      {
-        id: "not-nested",
-        path: "not-nested",
-      },
-      {
-        id: "not-nested-sub",
-        path: "not-nested/sub",
-      },
-      {
-        id: "not-nested-dynamic",
-        path: "not-nested/:id",
-      },
-      {
-        id: "not-nested-dual-dynamic",
-        path: "not-nested/:id/:id2",
-      },
-      {
-        id: "nested",
-        path: "nested",
-        children: [
-          {
-            id: "nested-index",
-            index: true,
-          },
-          {
-            id: "nested-sub",
-            path: "sub",
-          },
-          {
-            id: "nested-dynamic",
-            path: ":id",
-          },
-          {
-            id: "nested-dual-dynamic",
-            path: ":id/:id2",
-          },
-        ],
-      },
-      {
-        id: "catch-all",
-        path: "*",
-      },
-    ],
-  },
-]);
+let routesTrie = createTrie(routes);
 
 cytoscape.use(dagre);
-const cy = cytoscape({
+const cytoscapeOptions = {
   container: document.getElementById("cy"),
-  elements: createGraphElements(routesTrie),
 
   boxSelectionEnabled: false,
   autounselectify: true,
@@ -157,6 +101,27 @@ const cy = cytoscape({
       },
     },
   ],
+};
+let cy = cytoscape({
+  ...cytoscapeOptions,
+  elements: createGraphElements(routesTrie),
+} as any);
+
+const fileInput = document.getElementById("routes-file") as HTMLInputElement;
+fileInput.addEventListener("change", async (event) => {
+  const input = event.target as HTMLInputElement;
+  const json = await input.files?.item(0)?.text();
+  if (json) {
+    const newRoutes = JSON.parse(json);
+    routesTrie = createTrie(newRoutes);
+
+    console.log(newRoutes);
+    cy.destroy();
+    cy = cytoscape({
+      ...cytoscapeOptions,
+      elements: createGraphElements(routesTrie),
+    } as any);
+  }
 });
 
 const form = document.getElementById("match-form") as HTMLFormElement;
