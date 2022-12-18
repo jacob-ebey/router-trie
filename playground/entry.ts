@@ -174,12 +174,16 @@ form.addEventListener("submit", async (event) => {
   const path = (formData.get("path") as string) || "";
   const visitedIDs: string[] = [];
 
-  console.log(
-    matchTrie(routesTrie, path, {
-      onVisit: (node) => {
-        visitedIDs.push(toId(node));
-      },
-    })
+  const matches = matchTrie(routesTrie, path, {
+    onVisit: (node) => {
+      visitedIDs.push(toId(node));
+    },
+  });
+
+  document.getElementById("matches")!.innerText = JSON.stringify(
+    matches,
+    null,
+    2
   );
 
   let lastElement: cytoscape.CollectionReturnValue | undefined;
