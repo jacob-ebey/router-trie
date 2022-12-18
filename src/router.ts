@@ -31,13 +31,14 @@ function matchRecursive<Route extends RouteConfig>(
 ): Omit<Route, "children">[][] {
   if (!root) return matches;
 
+  console.log("HERE")
   if (onVisit) onVisit(root);
 
   let segmentsLength = segments.length;
   if (segmentIndex >= segmentsLength) {
     switch (root.key) {
       case INDEX_SYMBOL:
-        matchRecursive(root.children[0], segments, segmentIndex, matches);
+        matchRecursive(root.children[0], segments, segmentIndex, matches, onVisit);
         break;
       case DYNAMIC_SYMBOL:
       case CATCH_ALL_SYMBOL:
@@ -48,7 +49,7 @@ function matchRecursive<Route extends RouteConfig>(
         }
       case ROOT_SYMBOL:
         for (let child of root.children) {
-          matchRecursive(child, segments, segmentIndex, matches);
+          matchRecursive(child, segments, segmentIndex, matches, onVisit);
         }
         break;
     }
@@ -56,7 +57,7 @@ function matchRecursive<Route extends RouteConfig>(
     if (typeof root.key === "string") {
       if (root.key === segments[segmentIndex]) {
         for (let child of root.children) {
-          matchRecursive(child, segments, segmentIndex + 1, matches);
+          matchRecursive(child, segments, segmentIndex + 1, matches, onVisit);
         }
       }
     } else {
@@ -64,14 +65,14 @@ function matchRecursive<Route extends RouteConfig>(
         case INDEX_SYMBOL:
           break;
         case CATCH_ALL_SYMBOL:
-          matchRecursive(root.children[0], segments, segmentsLength, matches);
+          matchRecursive(root.children[0], segments, segmentsLength, matches, onVisit);
           break;
         case DYNAMIC_SYMBOL:
           segmentIndex++;
         case ROOT_SYMBOL:
         case ROUTE_SYMBOL:
           for (let child of root.children) {
-            matchRecursive(child, segments, segmentIndex, matches);
+            matchRecursive(child, segments, segmentIndex, matches, onVisit);
           }
           break;
       }

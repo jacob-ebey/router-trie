@@ -19,15 +19,19 @@
   ],
   "scripts": {
     "build": "microbundle",
-    "start": "tsx playground.ts",
+    "start": "vite",
     "test": "node --loader tsx --test tests/*.test.ts"
   },
   "devDependencies": {
+    "@types/cytoscape": "^3.19.9",
     "@types/deep-equal": "^1.0.1",
     "@types/node": "^18.11.17",
+    "cytoscape": "^3.23.0",
+    "cytoscape-dagre": "^2.5.0",
     "expect": "^29.3.1",
     "microbundle": "^0.15.1",
     "tsx": "^3.12.1",
-    "typescript": "^4.9.4"
+    "typescript": "^4.9.4",
+    "vite": "^4.0.1"
   }
 }
