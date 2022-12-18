@@ -1,5 +1,34 @@
 # router-trie
 
+## Usage
+
+```bash
+npm i router-trie
+```
+
+```js
+import { createTrie, matchTrie } from "router-trie";
+
+const routesTrie = createTrie([
+  {
+    id: "root",
+    children: [
+      {
+        id: "home",
+        index: true,
+      },
+    ],
+  },
+]);
+
+const matches = matchTrie(routesTrie, "/");
+
+console.log(matches);
+// [{ id: "root" }, { id: "home", index: true }]
+```
+
+## Development
+
 To install dependencies:
 
 ```bash
@@ -80,7 +109,7 @@ Given the following routing config:
       },
     ],
   },
-]
+];
 ```
 
 We get the following trie:
