@@ -1,8 +1,8 @@
-export const INDEX_SYMBOL = Symbol("index");
-export const DYNAMIC_SYMBOL = Symbol("dynamic");
-export const CATCH_ALL_SYMBOL = Symbol("catch-all");
-export const ROUTE_SYMBOL = Symbol("route");
-export const ROOT_SYMBOL = Symbol("root");
+export const INDEX_SYMBOL = Symbol("index"),
+  DYNAMIC_SYMBOL = Symbol("dynamic"),
+  CATCH_ALL_SYMBOL = Symbol("catch-all"),
+  ROUTE_SYMBOL = Symbol("route"),
+  ROOT_SYMBOL = Symbol("root");
 
 // #region MATCHING
 
@@ -10,13 +10,10 @@ export function matchTrie<Route extends RouteConfig>(
   root: Node<Route>,
   pathname: string
 ) {
-  const match = !pathname
-    ? null
-    : pathname.replace(/^\//, "").replace(/\/$/, "");
-  const path = match || "";
-  const segments = path.split("/").filter(Boolean);
-
-  const matched = matchRecursive<Route>(root, segments, 0, []);
+  let match = !pathname ? null : pathname.replace(/^\//, "").replace(/\/$/, ""),
+    path = match || "",
+    segments = path.split("/").filter(Boolean),
+    matched = matchRecursive<Route>(root, segments, 0, []);
   if (!matched.length) return null;
 
   return rankMatched(matched);
@@ -30,25 +27,21 @@ function matchRecursive<Route extends RouteConfig>(
 ): Omit<Route, "children">[][] {
   if (!root) return matches;
 
-  if (segmentIndex >= segments.length) {
+  let segmentsLength = segments.length;
+  if (segmentIndex >= segmentsLength) {
     switch (root.key) {
       case INDEX_SYMBOL:
         matchRecursive(root.children[0], segments, segmentIndex, matches);
         break;
       case DYNAMIC_SYMBOL:
-        break;
       case CATCH_ALL_SYMBOL:
         break;
       case ROUTE_SYMBOL:
         if (root.route) {
           matches.push(getMatchesFromNode(root)!);
         }
-        for (const child of root.children) {
-          matchRecursive(child, segments, segmentIndex, matches);
-        }
-        break;
       case ROOT_SYMBOL:
-        for (const child of root.children) {
+        for (let child of root.children) {
           matchRecursive(child, segments, segmentIndex, matches);
         }
         break;
@@ -56,7 +49,7 @@ function matchRecursive<Route extends RouteConfig>(
   } else {
     if (typeof root.key === "string") {
       if (root.key === segments[segmentIndex]) {
-        for (const child of root.children) {
+        for (let child of root.children) {
           matchRecursive(child, segments, segmentIndex + 1, matches);
         }
       }
@@ -64,24 +57,17 @@ function matchRecursive<Route extends RouteConfig>(
       switch (root.key) {
         case INDEX_SYMBOL:
           break;
-        case DYNAMIC_SYMBOL:
-          for (const child of root.children) {
-            matchRecursive(child, segments, segmentIndex + 1, matches);
-          }
-          break;
         case CATCH_ALL_SYMBOL:
-          matchRecursive(root.children[0], segments, segments.length, matches);
+          matchRecursive(root.children[0], segments, segmentsLength, matches);
           break;
+        case DYNAMIC_SYMBOL:
+          segmentIndex++;
         case ROUTE_SYMBOL:
+        case ROOT_SYMBOL:
           if (root.route) {
             matches.push(getMatchesFromNode(root)!);
           }
-          for (const child of root.children) {
-            matchRecursive(child, segments, segmentIndex, matches);
-          }
-          break;
-        case ROOT_SYMBOL:
-          for (const child of root.children) {
+          for (let child of root.children) {
             matchRecursive(child, segments, segmentIndex, matches);
           }
           break;
@@ -94,8 +80,8 @@ function matchRecursive<Route extends RouteConfig>(
 
 function getMatchesFromNode<Route extends RouteConfig>(node: Node<Route>) {
   if (!node.route) return null;
-  const matches: Omit<Route, "children">[] = [];
-  let currentNode: Node<Route> | null = node;
+  let matches: Omit<Route, "children">[] = [],
+    currentNode: Node<Route> | null = node;
   while (currentNode) {
     if (currentNode.route) {
       matches.push(currentNode.route);
@@ -109,12 +95,12 @@ function getMatchesFromNode<Route extends RouteConfig>(node: Node<Route>) {
 function rankMatched<Route extends RouteConfig>(
   matched: Omit<Route, "children">[][]
 ) {
-  let bestScore = Number.MIN_SAFE_INTEGER;
-  let bestMatch;
+  let bestScore = Number.MIN_SAFE_INTEGER,
+    bestMatch;
 
-  for (const matches of matched) {
+  for (let matches of matched) {
     let score = 0;
-    for (const match of matches) {
+    for (let match of matches) {
       score += computeScore(match);
     }
 
@@ -127,16 +113,16 @@ function rankMatched<Route extends RouteConfig>(
   return bestMatch;
 }
 
-const paramRe = /\/?:\w+$/;
-const staticSegmentValue = 10;
-const dynamicSegmentValue = 4;
-const indexRouteValue = 3;
-const emptySegmentValue = 2;
-const splatPenalty = 0;
-const isSplat = (s: string) => s === "*";
+let paramRe = /\/?:\w+$/,
+  staticSegmentValue = 10,
+  dynamicSegmentValue = 4,
+  indexRouteValue = 3,
+  emptySegmentValue = 2,
+  splatPenalty = 0,
+  isSplat = (s: string) => s === "*";
 function computeScore(match: Omit<RouteConfig, "children">): number {
-  let segments = (match.path || "")?.split("/").filter(Boolean);
-  let initialScore = segments.length;
+  let segments = (match.path || "").split("/").filter(Boolean),
+    initialScore = segments.length;
   if (segments.some(isSplat)) {
     initialScore += splatPenalty;
   }
@@ -163,14 +149,14 @@ function computeScore(match: Omit<RouteConfig, "children">): number {
 
 // #region CREATION
 export function createTrie<Route extends RouteConfig>(routes: Route[]) {
-  const root: Node<Route> = {
+  let root: Node<Route> = {
     key: ROOT_SYMBOL,
     parent: null,
     children: [],
     route: null,
   };
 
-  for (const route of routes) {
+  for (let route of routes) {
     insertRouteConfig(root, route);
   }
 
@@ -181,15 +167,11 @@ function insertRouteConfig<Route extends RouteConfig>(
   root: Node<Route>,
   route: Route
 ) {
-  const match = !route.path
-    ? null
-    : route.path.replace(/^\//, "").replace(/\/$/, "");
-  const path = match || "";
-
-  const node = insertPath(root, path, route);
+  let path = route.path ? route.path.replace(/^\//, "").replace(/\/$/, "") : "",
+    node = insertPath(root, path, route);
 
   if (!route.index && route.children) {
-    for (const childRoute of route.children) {
+    for (let childRoute of route.children) {
       insertRouteConfig<Route>(node, childRoute as Route);
     }
   }
@@ -202,16 +184,16 @@ function insertPath<Route extends RouteConfig>(
   path: string,
   route: Route
 ) {
-  let segments = path.split("/");
-  const segmentsLength = segments.length;
-  let currentNode = root;
+  let segments = path.split("/"),
+    segmentsLength = segments.length,
+    currentNode = root;
 
   for (let i = 0; i < segmentsLength; i++) {
-    const segment = segments[i];
+    let segment = segments[i];
     if (!segment) continue;
 
     if (segment.startsWith("*")) {
-      const existingNode = currentNode.children.find(
+      let existingNode = currentNode.children.find(
         (child) => child.key === CATCH_ALL_SYMBOL
       );
       if (existingNode) {
@@ -219,44 +201,44 @@ function insertPath<Route extends RouteConfig>(
           "Only one catch all route is allowed per branch of the tree"
         );
       }
-      const catchAllNode = createNode(CATCH_ALL_SYMBOL, currentNode);
+      let catchAllNode = createNode(CATCH_ALL_SYMBOL, currentNode);
       currentNode.children.push(catchAllNode);
       currentNode = catchAllNode;
       break;
     }
     if (segment.startsWith(":")) {
-      const existingNode = currentNode.children.find(
+      let existingNode = currentNode.children.find(
         (child) => child.key === DYNAMIC_SYMBOL
       );
       if (existingNode) {
         currentNode = existingNode;
       } else {
-        const dynamicNode = createNode(DYNAMIC_SYMBOL, currentNode);
+        let dynamicNode = createNode(DYNAMIC_SYMBOL, currentNode);
         currentNode.children.push(dynamicNode);
         currentNode = dynamicNode;
       }
       continue;
     }
 
-    const existingNode = currentNode.children.find(
+    let existingNode = currentNode.children.find(
       (child) => child.key === segment
     );
     if (existingNode) {
       currentNode = existingNode;
     } else {
-      const segmentNode = createNode(segment, currentNode);
+      let segmentNode = createNode(segment, currentNode);
       currentNode.children.push(segmentNode);
       currentNode = segmentNode;
     }
   }
 
   if (route.index) {
-    const indexNode = createNode(INDEX_SYMBOL, currentNode);
+    let indexNode = createNode(INDEX_SYMBOL, currentNode);
     currentNode.children.push(indexNode);
     currentNode = indexNode;
   }
 
-  const routeNode = createNode(ROUTE_SYMBOL, currentNode, route);
+  let routeNode = createNode(ROUTE_SYMBOL, currentNode, route);
   currentNode.children.push(routeNode);
   currentNode = routeNode;
 
@@ -269,10 +251,10 @@ function createNode<Route extends RouteConfig>(
   route: Route | null = null
 ) {
   if (route) {
-    const { children: _, ...rest } = route as NonIndexRouteConfig;
+    let { children: _, ...rest } = route as NonIndexRouteConfig;
     route = rest as any;
   }
-  const node: Node<Route> = {
+  let node: Node<Route> = {
     key,
     route,
     parent,
