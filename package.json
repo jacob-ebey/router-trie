@@ -1,14 +1,21 @@
 {
   "name": "router-trie",
+  "version": "0.0.1",
   "type": "module",
   "source": "src/index.ts",
   "main": "./dist/index.cjs",
   "module": "./dist/index.module.js",
   "unpkg": "./dist/index.umd.js",
   "exports": {
+    "bun": "./src/index.ts",
+    "deno": "./src/index.ts",
     "require": "./dist/index.cjs",
     "default": "./dist/index.modern.js"
   },
+  "files": [
+    "dist",
+    "src"
+  ],
   "scripts": {
     "build": "microbundle",
     "start": "tsx playground.ts",

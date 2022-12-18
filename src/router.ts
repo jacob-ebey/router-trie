@@ -8,12 +8,15 @@ export const INDEX_SYMBOL = Symbol("index"),
 
 export function matchTrie<Route extends RouteConfig>(
   root: Node<Route>,
-  pathname: string
+  pathname: string,
+  options: {
+    onVisit?: (node: Node<Route>) => void;
+  } = {}
 ) {
   let match = !pathname ? null : pathname.replace(/^\//, "").replace(/\/$/, ""),
     path = match || "",
     segments = path.split("/").filter(Boolean),
-    matched = matchRecursive<Route>(root, segments, 0, []);
+    matched = matchRecursive<Route>(root, segments, 0, [], options.onVisit);
   if (!matched.length) return null;
 
   return rankMatched(matched);
@@ -23,9 +26,12 @@ function matchRecursive<Route extends RouteConfig>(
   root: Node<Route> | undefined,
   segments: string[],
   segmentIndex: number,
-  matches: Omit<Route, "children">[][]
+  matches: Omit<Route, "children">[][],
+  onVisit?: (node: Node<Route>) => void
 ): Omit<Route, "children">[][] {
   if (!root) return matches;
+
+  if (onVisit) onVisit(root);
 
   let segmentsLength = segments.length;
   if (segmentIndex >= segmentsLength) {
