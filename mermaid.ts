@@ -2,9 +2,9 @@ import {
   CATCH_ALL_SYMBOL,
   DYNAMIC_SYMBOL,
   INDEX_SYMBOL,
-  Node,
   ROOT_SYMBOL,
   ROUTE_SYMBOL,
+  type Node,
 } from "./router";
 
 export function nodeToMermaidMarkdown(node: Node<any>): string {
