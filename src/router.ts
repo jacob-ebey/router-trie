@@ -138,11 +138,11 @@ let staticSegmentValue = 10,
   optionalSegmentValue = 3,
   indexRouteValue = 2,
   emptySegmentValue = 1,
-  splatPenalty = 0,
+  splatPenalty = -1,
   isSplat = (s: string) => s === "*";
 function computeScore(match: Omit<RouteConfig, "children">): number {
   let segments = (match.path || "").split("/").filter(Boolean),
-    initialScore = segments.length;
+    initialScore = segments.length * segments.length;
   if (segments.some(isSplat)) {
     initialScore += splatPenalty;
   }
@@ -154,15 +154,15 @@ function computeScore(match: Omit<RouteConfig, "children">): number {
   return segments
     .filter((s) => !isSplat(s))
     .reduce(
-      (score, segment) =>
+      (score, segment, i) =>
         score +
         (segment.startsWith(":")
           ? segment.endsWith("?")
-            ? optionalSegmentValue
-            : dynamicSegmentValue
+            ? optionalSegmentValue * (i + 1)
+            : dynamicSegmentValue * (i + 1)
           : segment === ""
-          ? emptySegmentValue
-          : staticSegmentValue),
+          ? emptySegmentValue * (i + 1)
+          : staticSegmentValue * (i + 1)),
       initialScore
     );
 }
