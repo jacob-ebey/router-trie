@@ -122,8 +122,6 @@ function rankMatched<Route extends RouteConfig>(
       score += computeScore(match);
     }
 
-    console.log({ score, matches });
-
     if (score > bestScore) {
       bestScore = score;
       bestMatch = matches;
