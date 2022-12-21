@@ -1,5 +1,6 @@
 export const INDEX_SYMBOL = Symbol("index"),
   DYNAMIC_SYMBOL = Symbol("dynamic"),
+  OPTIONAL_SYMBOL = Symbol("optional"),
   CATCH_ALL_SYMBOL = Symbol("catch-all"),
   ROUTE_SYMBOL = Symbol("route"),
   ROOT_SYMBOL = Symbol("root");
@@ -37,7 +38,13 @@ function matchRecursive<Route extends RouteConfig>(
   if (segmentIndex >= segmentsLength) {
     switch (root.key) {
       case INDEX_SYMBOL:
-        matchRecursive(root.children[0], segments, segmentIndex, matches, onVisit);
+        matchRecursive(
+          root.children[0],
+          segments,
+          segmentIndex,
+          matches,
+          onVisit
+        );
         break;
       case DYNAMIC_SYMBOL:
       case CATCH_ALL_SYMBOL:
@@ -47,6 +54,7 @@ function matchRecursive<Route extends RouteConfig>(
           matches.push(getMatchesFromNode(root)!);
         }
       case ROOT_SYMBOL:
+      case OPTIONAL_SYMBOL:
         for (let child of root.children) {
           matchRecursive(child, segments, segmentIndex, matches, onVisit);
         }
@@ -64,9 +72,16 @@ function matchRecursive<Route extends RouteConfig>(
         case INDEX_SYMBOL:
           break;
         case CATCH_ALL_SYMBOL:
-          matchRecursive(root.children[0], segments, segmentsLength, matches, onVisit);
+          matchRecursive(
+            root.children[0],
+            segments,
+            segmentsLength,
+            matches,
+            onVisit
+          );
           break;
         case DYNAMIC_SYMBOL:
+        case OPTIONAL_SYMBOL:
           segmentIndex++;
         case ROOT_SYMBOL:
         case ROUTE_SYMBOL:
@@ -107,6 +122,8 @@ function rankMatched<Route extends RouteConfig>(
       score += computeScore(match);
     }
 
+    console.log({ score, matches });
+
     if (score > bestScore) {
       bestScore = score;
       bestMatch = matches;
@@ -116,11 +133,11 @@ function rankMatched<Route extends RouteConfig>(
   return bestMatch;
 }
 
-let paramRe = /\/?:\w+$/,
-  staticSegmentValue = 10,
+let staticSegmentValue = 10,
   dynamicSegmentValue = 4,
-  indexRouteValue = 3,
-  emptySegmentValue = 2,
+  optionalSegmentValue = 3,
+  indexRouteValue = 2,
+  emptySegmentValue = 1,
   splatPenalty = 0,
   isSplat = (s: string) => s === "*";
 function computeScore(match: Omit<RouteConfig, "children">): number {
@@ -139,8 +156,10 @@ function computeScore(match: Omit<RouteConfig, "children">): number {
     .reduce(
       (score, segment) =>
         score +
-        (paramRe.test(segment)
-          ? dynamicSegmentValue
+        (segment.startsWith(":")
+          ? segment.endsWith("?")
+            ? optionalSegmentValue
+            : dynamicSegmentValue
           : segment === ""
           ? emptySegmentValue
           : staticSegmentValue),
@@ -210,15 +229,28 @@ function insertPath<Route extends RouteConfig>(
       break;
     }
     if (segment.startsWith(":")) {
-      let existingNode = currentNode.children.find(
-        (child) => child.key === DYNAMIC_SYMBOL
-      );
-      if (existingNode) {
-        currentNode = existingNode;
+      if (segment.endsWith("?")) {
+        let existingNode = currentNode.children.find(
+          (child) => child.key === OPTIONAL_SYMBOL
+        );
+        if (existingNode) {
+          currentNode = existingNode;
+        } else {
+          let optionalNode = createNode(OPTIONAL_SYMBOL, currentNode);
+          currentNode.children.push(optionalNode);
+          currentNode = optionalNode;
+        }
       } else {
-        let dynamicNode = createNode(DYNAMIC_SYMBOL, currentNode);
-        currentNode.children.push(dynamicNode);
-        currentNode = dynamicNode;
+        let existingNode = currentNode.children.find(
+          (child) => child.key === DYNAMIC_SYMBOL
+        );
+        if (existingNode) {
+          currentNode = existingNode;
+        } else {
+          let dynamicNode = createNode(DYNAMIC_SYMBOL, currentNode);
+          currentNode.children.push(dynamicNode);
+          currentNode = dynamicNode;
+        }
       }
       continue;
     }

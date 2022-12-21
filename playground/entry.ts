@@ -9,6 +9,7 @@ import {
   matchTrie,
   CATCH_ALL_SYMBOL,
   DYNAMIC_SYMBOL,
+  OPTIONAL_SYMBOL,
   INDEX_SYMBOL,
   ROOT_SYMBOL,
   ROUTE_SYMBOL,
@@ -61,6 +62,8 @@ function toId(node: Node<any>) {
       return `${id}{_INDEX_}`;
     case DYNAMIC_SYMBOL:
       return `${id}{_DYNAMIC_}`;
+    case OPTIONAL_SYMBOL:
+      return `${id}{_OPTIONAL_}`;
     case CATCH_ALL_SYMBOL:
       return `${id}{_CATCH_ALL_}`;
     case ROUTE_SYMBOL:

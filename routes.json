@@ -28,6 +28,18 @@
         "path": "not-nested/:id/:id2"
       },
       {
+        "id": "optional",
+        "path": "optional/:id?/:id2?"
+      },
+      {
+        "id": "optional-static",
+        "path": "optional/sub/:id2?"
+      },
+      {
+        "id": "optional-static-sub",
+        "path": "optional/:id?/sub"
+      },
+      {
         "id": "nested",
         "path": "nested",
         "children": [

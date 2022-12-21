@@ -2,90 +2,10 @@ import { describe, it } from "node:test";
 import { expect } from "expect";
 
 import { createTrie, matchTrie } from "../src";
+import routes from "../routes.json";
 
 describe("router", () => {
-  const routesTrie = createTrie([
-    {
-      id: "root",
-      children: [
-        {
-          id: "home",
-          index: true,
-        },
-        {
-          id: "path-index",
-          path: "path-index",
-          index: true,
-        },
-        {
-          id: "not-nested",
-          path: "not-nested",
-        },
-        {
-          id: "not-nested-sub",
-          path: "not-nested/sub",
-        },
-        {
-          id: "not-nested-dynamic",
-          path: "not-nested/:id",
-        },
-        {
-          id: "not-nested-dual-dynamic",
-          path: "not-nested/:id/:id2",
-        },
-        {
-          id: "nested",
-          path: "nested",
-          children: [
-            {
-              id: "nested-index",
-              index: true,
-            },
-            {
-              id: "nested-sub",
-              path: "sub",
-            },
-            {
-              id: "nested-dynamic",
-              path: ":id",
-            },
-            {
-              id: "nested-dual-dynamic",
-              path: ":id/:id2",
-            },
-          ],
-        },
-        {
-          id: "nested-nested",
-          path: "nested-nested",
-          children: [
-            {
-              id: "nested-nested-index",
-              index: true,
-            },
-            {
-              id: "nested-nested-sub",
-              path: "sub",
-            },
-            {
-              id: "nested-nested-dynamic",
-              path: ":id",
-              children: [
-                {
-                  id: "nested-nested-dual-dynamic",
-                  path: ":id2",
-                },
-              ],
-            },
-          ],
-        },
-        {
-          id: "catch-all",
-          path: "*",
-        },
-      ],
-    },
-  ]);
+  const routesTrie = createTrie(routes);
 
   it("should match index child of root pathless route", () => {
     const matches = matchTrie(routesTrie, "/");
@@ -206,5 +126,33 @@ describe("router", () => {
     expect(matches!.length).toBe(2);
     expect(matches![0].id).toBe("root");
     expect(matches![1].id).toBe("catch-all");
+  });
+
+  it("should match optional segments with all missing", () => {
+    const matches = matchTrie(routesTrie, "/optional");
+    expect(matches!.length).toBe(2);
+    expect(matches![0].id).toBe("root");
+    expect(matches![1].id).toBe("optional");
+  });
+
+  it("should match optional segments with one missing", () => {
+    const matches = matchTrie(routesTrie, "/optional/a");
+    expect(matches!.length).toBe(2);
+    expect(matches![0].id).toBe("root");
+    expect(matches![1].id).toBe("optional");
+  });
+
+  it("should match optional with static first segment", () => {
+    const matches = matchTrie(routesTrie, "/optional/sub/b");
+    expect(matches!.length).toBe(2);
+    expect(matches![0].id).toBe("root");
+    expect(matches![1].id).toBe("optional-static");
+  });
+
+  it("should match optional with static second segment", () => {
+    const matches = matchTrie(routesTrie, "/optional/a/sub");
+    expect(matches!.length).toBe(2);
+    expect(matches![0].id).toBe("root");
+    expect(matches![1].id).toBe("optional-static-sub");
   });
 });

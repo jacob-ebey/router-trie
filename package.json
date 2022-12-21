@@ -20,7 +20,8 @@
   "scripts": {
     "build": "microbundle",
     "start": "vite",
-    "test": "node --loader tsx --test tests/*.test.ts"
+    "test": "node --loader tsx --test tests/*.test.ts",
+    "watch": "node --loader tsx --watch --test tests/*.test.ts"
   },
   "devDependencies": {
     "@types/cytoscape": "^3.19.9",
