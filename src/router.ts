@@ -14,13 +14,15 @@ export function matchTrie<Route extends RouteConfig>(
     onVisit?: (node: Node<Route>) => void;
   } = {}
 ) {
-  let match = !pathname ? null : pathname.replace(/^\//, "").replace(/\/$/, ""),
-    path = match || "",
-    segments = path.split("/").filter(Boolean),
-    matched = matchRecursive<Route>(root, segments, 0, [], options.onVisit);
-  if (!matched.length) return null;
+  let matched = matchRecursive<Route>(
+    root,
+    getSegments(sanitizePath(pathname)),
+    0,
+    [],
+    options.onVisit
+  );
 
-  return rankMatched(matched);
+  return matched.length ? rankMatched(matched) : null;
 }
 
 function matchRecursive<Route extends RouteConfig>(
@@ -131,7 +133,7 @@ function rankMatched<Route extends RouteConfig>(
   return bestMatch;
 }
 
-let staticSegmentValue = 10,
+const staticSegmentValue = 10,
   dynamicSegmentValue = 4,
   optionalSegmentValue = 3,
   indexRouteValue = 2,
@@ -139,7 +141,7 @@ let staticSegmentValue = 10,
   splatPenalty = -1,
   isSplat = (s: string) => s === "*";
 function computeScore(match: Omit<RouteConfig, "children">): number {
-  let segments = (match.path || "").split("/").filter(Boolean),
+  let segments = getSegments(match.path || ""),
     initialScore = segments.length * segments.length;
   if (segments.some(isSplat)) {
     initialScore += splatPenalty;
@@ -187,7 +189,7 @@ function insertRouteConfig<Route extends RouteConfig>(
   root: Node<Route>,
   route: Route
 ) {
-  let path = route.path ? route.path.replace(/^\//, "").replace(/\/$/, "") : "",
+  let path = sanitizePath(route.path),
     node = insertPath(root, path, route);
 
   if (!route.index && route.children) {
@@ -199,12 +201,20 @@ function insertRouteConfig<Route extends RouteConfig>(
   return node;
 }
 
+function sanitizePath(path?: string) {
+  return path ? path.replace(/^\//, "").replace(/\/$/, "") : "";
+}
+
+function getSegments(path: string) {
+  return path.split("/").filter(Boolean);
+}
+
 function insertPath<Route extends RouteConfig>(
   root: Node<Route>,
   path: string,
   route: Route
 ) {
-  let segments = path.split("/"),
+  let segments = getSegments(path),
     segmentsLength = segments.length,
     currentNode = root;
 

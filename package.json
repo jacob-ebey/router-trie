@@ -1,7 +1,8 @@
 {
   "name": "router-trie",
-  "version": "0.0.6",
+  "version": "0.0.8",
   "type": "module",
+  "sideEffects": false,
   "source": "src/index.ts",
   "main": "./dist/index.cjs",
   "module": "./dist/index.module.js",
