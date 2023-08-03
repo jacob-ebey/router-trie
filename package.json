@@ -1,6 +1,6 @@
 {
   "name": "router-trie",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "type": "module",
   "sideEffects": false,
   "source": "src/index.ts",
@@ -8,8 +8,6 @@
   "types": "./dist/index.d.ts",
   "exports": {
     "types": "./dist/index.d.ts",
-    "bun": "./src/index.ts",
-    "deno": "./src/index.ts",
     "import": "./dist/index.modern.js",
     "require": "./dist/index.cjs",
     "default": "./dist/index.modern.js"
